@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+	<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+	<script type="application/javascript" src="/js/jquery-3.5.1.min.js"></script>
+	<script type="application/javascript" src="/js/bootstrap.min.js"></script>
+	<script type="application/javascript">
+		var pageNum = 1;
+		var pageSize = 10;
+
+		function parseDate(date) {
+			var mydate = new Date(date);
+			return mydate.getFullYear() + "-" + parseInt(mydate.getMonth()) + 1 + "-" + mydate.getDate();
+		}
+
+		function getList() {
+			if (pageNum == null || pageNum == 0) {
+				pageNum = 1;
+			}
+			if (pageSize == null || pageSize == 0) {
+				pageSize = 10;
+			}
+
+			$.ajax({
+				url: "list",
+				type: "post",
+				data: {
+					"pageNum": pageNum,
+					"pageSize": pageSize,
+					"searchKey": $("#searchKey").val()
+				},
+				dataType: "json",
+				success: function (data) {
+					pageNum = data.pageNum;
+					pageSize = data.pageSize;
+					// 通过 data 数据获得列表
+					var list = data.list;
+					if (list.length > 0) {
+						// 添加表格
+						var table = "";
+						for (var i in list) {
+							var hotEvents = list[i];
+							table = table + "<tr><td><a href='detail?id=" + hotEvents.id + "'>" + hotEvents.keyWord + "</a></td><td>"
+								+ hotEvents.searchSum + "</td><td>"
+								+ parseDate(hotEvents.createDate) + "</td></tr>"
+						}
+						$("#tablebody").html(table);
+						var foot = "<tr><td colspan='3' align='center'><a href='javascript:getList(\"1\")'>首页</a>&nbsp;&nbsp;&nbsp;";
+						if (data.pageNum > 1) {
+							foot = foot +  "<a href='javascript:getList(\"" + (parseInt(data.pageNum) - 1) + "\")'>上一页</a>&nbsp;&nbsp;&nbsp;";
+						} else {
+							foot = foot +  "上一页&nbsp;&nbsp;&nbsp;";
+						}
+						if (data.pageNum < data.totalPage) {
+							foot = foot +  "<a href='javascript:getList(\"" + (parseInt(data.pageNum) + 1) + "\")'>下一页</a>&nbsp;&nbsp;&nbsp;";
+						} else {
+							foot = foot +  "下一页&nbsp;&nbsp;&nbsp;";
+						}
+						foot = foot + "<a href='javascript:getList(\"" + data.totalPage + "\")'>末页</a>&nbsp;&nbsp;&nbsp;";
+						foot = foot + "第" + data.pageNum + "页 / 共" + data.totalPage + "页</td></tr>";
+						$("#tablefoot").html(foot);
+					}
+				}
+			});
+		}
+
+		$(function() {
+			getList();
+		})
+	</script>
+</head>
+<body>
+<div class="container">
+	<div class="row">
+		<div class="col-md-12 input-group">
+					<span class="input-group-addon">
+						关键字：
+					</span>
+			<input type="text" id="searchKey" class="form-control">
+			<span class="input-group-addon">
+						<a href="javascript:getList()" class="btn btn-success btn-xs">
+							搜索
+						</a>
+					</span>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<table class="table table-bordered table-hover">
+				<caption style="font: normal bold 30px 微软雅黑; text-align: center">热点事件排行榜</caption>
+				<thead>
+				<tr>
+					<th>关键字</th>
+					<th>搜索指数</th>
+					<th>创建时间</th>
+				</tr>
+				</thead>
+				<tbody id="tablebody"></tbody>
+				<tfoot id="tablefoot" style="text-align: center;"></tfoot>
+			</table>
+		</div>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ekgc.show.dao.CommentsDao">
+	<insert id="save" parameterType="Comments">
+		insert into comments(
+		<trim suffixOverrides=",">
+			<if test="hotEvents != null and hotEvents.id != null">hotEventsId, </if>
+			<if test="commentDate != null">commentDate, </if>
+			<if test="content != null">content, </if>
+		</trim>
+		) values(
+		<trim suffixOverrides=",">
+			<if test="hotEvents != null and hotEvents.id != null">#{hotEvents.id}, </if>
+			<if test="commentDate != null">#{commentDate}, </if>
+			<if test="content != null">#{content}, </if>
+		</trim>
+		)
+	</insert>
+
+	<select id="findListByQuery" parameterType="Comments" resultMap="CommentsMap">
+		select
+		co.id,
+		co.content,
+		co.commentDate,
+		he.id hotEventsId,
+		he.keyWord,
+		he.hotContent,
+		he.searchSum,
+		he.createDate
+		from
+		comments co join hotevents he on co.hotEventsId=he.id
+		<where>
+			<trim suffixOverrides="and">
+				<if test="hotEvents != null and hotEvents.id != null">he.id=#{hotEvents.id} and </if>
+			</trim>
+		</where>
+		order by co.commentDate desc
+	</select>
+	<resultMap id="CommentsMap" type="Comments">
+		<id property="id" javaType="java.lang.Long" column="id"/>
+		<result property="content" javaType="java.lang.String" column="content"/>
+		<result property="commentDate" javaType="java.util.Date" column="commentDate"/>
+		<association property="hotEvents" javaType="HotEvents">
+			<id property="id" javaType="java.lang.Long" column="hotEventsId"/>
+			<result property="keyWord" javaType="java.lang.String" column="keyWord"/>
+			<result property="hotContent" javaType="java.lang.String" column="hotContent"/>
+			<result property="searchSum" javaType="java.lang.Long" column="searchSum"/>
+			<result property="createDate" javaType="java.util.Date" column="createDate"/>
+		</association>
+	</resultMap>
+</mapper>

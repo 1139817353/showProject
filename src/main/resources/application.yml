@@ -1,0 +1,23 @@
+server:
+  port: 6666
+spring:
+  application:
+    name: project
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/hotevents_db?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
+    username: root
+    password: java
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      min-idle: 3
+      max-active: 15
+      initial-size: 5
+      min-evictable-idle-time-millis: 30000
+      max-evictable-idle-time-millis: 60000
+  thymeleaf:
+    prefix: classpath:/view/
+    suffix: .html
+mybatis:
+  type-aliases-package: cn.ekgc.show.pojo.entity
+  mapper-locations: classpath:/mapper/*.Mapper.xml

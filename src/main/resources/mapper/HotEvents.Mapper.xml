@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ekgc.show.dao.HotEventsDao">
+	<select id="findHotEventsList" parameterType="HotEvents" resultMap="HotEventsMap">
+		select
+		he.id,
+		he.keyWord,
+		he.hotContent,
+		he.searchSum,
+		he.createDate,
+		co.id commentsId,
+		co.content,
+		co.commentDate
+		from
+		hotevents he left join comments co on he.id=co.hotEventsId
+		<where>
+			<trim suffixOverrides="and">
+				<if test="id != null">he.id=#{id} and </if>
+				<if test="keyWord != null and keyWord != ''">he.keyWord like concat('%', #{keyWord}, '%') and </if>
+			</trim>
+		</where>
+		order by he.searchSum desc
+	</select>
+	<resultMap id="HotEventsMap" type="HotEvents">
+		<id property="id" javaType="java.lang.Long" column="id"/>
+		<result property="keyWord" javaType="java.lang.String" column="keyWord"/>
+		<result property="hotContent" javaType="java.lang.String" column="hotContent"/>
+		<result property="searchSum" javaType="java.lang.Long" column="searchSum"/>
+		<result property="createDate" javaType="java.util.Date" column="createDate"/>
+		<collection property="commentsList" ofType="Comments">
+			<id property="id" javaType="java.lang.Long" column="commentsId"/>
+			<result property="content" javaType="java.lang.String" column="content"/>
+			<result property="commentDate" javaType="java.util.Date" column="commentDate"/>
+		</collection>
+	</resultMap>
+</mapper>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>Title</title>
+		<link rel="stylesheet" type="text/css" href="/css/bootstrap.min.css">
+		<script type="application/javascript" src="/js/jquery-3.5.1.min.js"></script>
+		<script type="application/javascript" src="/js/bootstrap.min.js"></script>
+		<script type="application/javascript">
+			function parseDate(date) {
+				var mydate = new Date(date);
+				return mydate.getFullYear() + "-" + parseInt(mydate.getMonth()) + 1 + "-" + mydate.getDate();
+			}
+
+			function parseTime(date) {
+				var mydate = new Date(date);
+				return mydate.getFullYear() + "-" + parseInt(mydate.getMonth()) + 1 + "-" + mydate.getDate()
+					+ " " + mydate.getHours() + ":" + mydate.getMinutes() + ":" + mydate.getSeconds();
+			}
+
+			function getDetail() {
+				$.ajax({
+					url: "detail",
+					type: "post",
+					data: {
+						"id": $("#id").val()
+					},
+					dataType: "json",
+					success: function (data) {
+						$("#keyWord").html(data.keyWord);
+						$("#createDate").html(parseDate(data.createDate));
+						$("#hotContent").html(data.hotContent);
+					}
+				});
+			}
+
+			function getCommentList() {
+				$.ajax({
+					url: "../comments/query",
+					type: "post",
+					data: {
+						"id": $("#id").val()
+					},
+					dataType: "json",
+					success: function (data) {
+						if (data.length > 0) {
+							var p = "";
+							for (var i in data) {
+								var comment = data[i];
+								p = p + "<p><span>评论时间：" + parseTime(comment.commentDate) + "</span><br><span>"
+									+ comment.content + "</span></p>"
+							}
+							$("#content").html(p);
+						}
+					}
+				});
+			}
+
+			$(function () {
+				getDetail();
+				getCommentList();
+			})
+			
+			function save() {
+				// 获得评论内容
+				var content = $("#mycontent").val();
+				if (content != null && content.trim() != "") {
+					$("#errorMsg").html("");
+					$.ajax({
+						url: "../comments/save",
+						type: "post",
+						data: {
+							"id": $("#id").val(),
+							"content": content
+						},
+						dataType: "json",
+						success: function (data) {
+							getCommentList();
+						}
+					});
+				} else {
+					$("#errorMsg").html("请填写评论内容！");
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<input type="hidden" id="id" th:value="${id}"/>
+				<div class="col-md-12">
+					<h1 id="keyWord"></h1>
+				</div>
+			</div>
+			<div class="row">
+				<div id="" class="col-md-12">
+					创建于：<span id="createDate"></span>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<p id="hotContent"></p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					<h3>评论</h3>
+				</div>
+			</div>
+			<div class="row">
+				<div id="content" class="col-md-12"></div>
+			</div>
+			<div class="row">
+				<div class="col-md-12">
+					快速评论：<br>
+					<textarea id="mycontent" cols="20" rows="5"></textarea>
+					<br>
+					<span id="errorMsg" style="color: red;"></span>
+					<br>
+					<button type="button" onclick="save();">提交</button>
+					<a href="index">返回</a>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
